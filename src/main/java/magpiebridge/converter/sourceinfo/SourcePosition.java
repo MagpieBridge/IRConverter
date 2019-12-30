@@ -1,4 +1,4 @@
-package magpiebridge.converter;
+package magpiebridge.converter.sourceinfo;
 
 public class SourcePosition {
 

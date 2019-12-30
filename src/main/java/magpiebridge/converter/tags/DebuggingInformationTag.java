@@ -1,10 +1,14 @@
-package magpiebridge.converter;
+package magpiebridge.converter.tags;
 
 import com.ibm.wala.cast.loader.AstMethod.DebuggingInformation;
 import soot.tagkit.AttributeValueException;
 import soot.tagkit.Tag;
 
-/** @author Linghui Luo */
+/**
+ * Tag used for storing {@link DebuggingInformation}
+ *
+ * @author Linghui Luo
+ */
 public class DebuggingInformationTag implements Tag {
 
   private DebuggingInformation debugInfo;
@@ -15,7 +19,7 @@ public class DebuggingInformationTag implements Tag {
 
   @Override
   public String getName() {
-    return "DebugInfo";
+    return "DebuggingInformationTag";
   }
 
   @Override

@@ -1,16 +1,21 @@
-package magpiebridge.converter;
+package magpiebridge.converter.tags;
 
+import magpiebridge.converter.sourceinfo.StmtPositionInfo;
 import soot.tagkit.AttributeValueException;
 import soot.tagkit.Tag;
 
-/** @author Linghui Luo */
+/**
+ * Tag used for storing {@link StmtPositionInfo}
+ *
+ * @author Linghui Luo
+ */
 public class StmtPositionInfoTag implements Tag {
 
   private StmtPositionInfo stmtPos;
 
   @Override
   public String getName() {
-    return "PositionInfoTag";
+    return "StmtPositionInfoTag";
   }
 
   @Override

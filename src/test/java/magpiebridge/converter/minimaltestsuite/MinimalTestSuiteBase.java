@@ -55,7 +55,7 @@ public abstract class MinimalTestSuiteBase {
 
   public void assertJimpleStmts(SootMethod method, List<String> expectedStmts) {
     Body body = method.getActiveBody();
-    Utils.print(body, true);
+    Utils.print(body, false);
     assertNotNull(body);
     List<String> actualStmts = Utils.bodyStmtsAsStrings(body);
     assertEquals(expectedStmts, actualStmts);

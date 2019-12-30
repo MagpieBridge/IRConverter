@@ -1,17 +1,21 @@
-package magpiebridge.converter;
+package magpiebridge.converter.tags;
 
 import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
 import soot.tagkit.AttributeValueException;
 import soot.tagkit.Tag;
 
-/** @author Linghui Luo */
-public class PositionTag implements Tag {
+/**
+ * Tag used for storing position of a java source code class.
+ *
+ * @author Linghui Luo
+ */
+public class ClassPositionTag implements Tag {
 
   private Position pos;
 
   @Override
   public String getName() {
-    return "PositionTag";
+    return "ClassPositionTag";
   }
 
   @Override
@@ -19,7 +23,7 @@ public class PositionTag implements Tag {
     return pos.toString().getBytes();
   }
 
-  public PositionTag(Position pos) {
+  public ClassPositionTag(Position pos) {
     this.pos = pos;
   }
 

@@ -154,6 +154,7 @@ public class WalaToSootIRConverter {
         throw new RuntimeException(e);
       }
     }
+    classHierarchy.getLoaders();
     return classHierarchy.getLoader(JavaSourceAnalysisScope.SOURCE).iterateAllClasses();
   }
 

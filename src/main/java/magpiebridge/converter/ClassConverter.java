@@ -21,6 +21,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import magpiebridge.converter.sourceinfo.StmtPositionInfo;
+import magpiebridge.converter.tags.ClassPositionTag;
+import magpiebridge.converter.tags.DebuggingInformationTag;
+import magpiebridge.converter.tags.StmtPositionInfoTag;
 import soot.ArrayType;
 import soot.Body;
 import soot.BooleanType;
@@ -47,6 +51,11 @@ import soot.jimple.JimpleBody;
 import soot.jimple.Stmt;
 import soot.jimple.internal.JReturnVoidStmt;
 
+/**
+ * Convert a JavaClass from wala to SootClass.
+ *
+ * @author Linghui Luo
+ */
 public class ClassConverter {
   private final HashMap<String, String> walaToSootNameTable;
   private final HashMap<String, Integer> clsWithInnerCls;
@@ -94,7 +103,7 @@ public class ClassConverter {
 
     // add source position
     Position position = fromClass.getSourcePosition();
-    toClass.addTag(new PositionTag(position));
+    toClass.addTag(new ClassPositionTag(position));
 
     // convert fields
     Set<IField> fields = HashSetFactory.make(fromClass.getDeclaredInstanceFields());
@@ -212,13 +221,11 @@ public class ClassConverter {
          */
 
         if (!Modifier.isStatic(modifiers)) {
-
           Local thisLocal = localGenerator.generateThisLocal(declaringClassType);
-
           Stmt stmt =
               Jimple.v().newIdentityStmt(thisLocal, Jimple.v().newThisRef(declaringClassType));
           Position pos = debugInfo.getInstructionPosition(0);
-          stmt.addTag(new PositionTag(pos));
+          stmt.addTag(new StmtPositionInfoTag(new StmtPositionInfo(pos, null)));
           stmts.add(stmt);
         }
 
@@ -238,7 +245,7 @@ public class ClassConverter {
           Stmt stmt =
               Jimple.v().newIdentityStmt(paraLocal, Jimple.v().newParameterRef(type, index));
           Position pos = debugInfo.getInstructionPosition(0);
-          stmt.addTag(new PositionTag(pos));
+          stmt.addTag(new StmtPositionInfoTag(new StmtPositionInfo(pos, null)));
           stmts.add(stmt);
         }
 
@@ -272,7 +279,7 @@ public class ClassConverter {
             // startcol: -1 because it does not exist in the source explicitly?
             ret = Jimple.v().newReturnVoidStmt();
             Position pos = debugInfo.getInstructionPosition(insts.length - 1);
-            ret.addTag(new PositionTag(pos));
+            ret.addTag(new StmtPositionInfoTag(new StmtPositionInfo(pos, null)));
             stmts.add(ret);
           } else {
             ret = stmts.get(stmts.size() - 1);

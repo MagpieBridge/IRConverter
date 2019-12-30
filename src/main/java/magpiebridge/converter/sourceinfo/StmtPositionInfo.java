@@ -1,4 +1,4 @@
-package magpiebridge.converter;
+package magpiebridge.converter.sourceinfo;
 
 import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
 import java.util.Arrays;
@@ -19,7 +19,7 @@ public final class StmtPositionInfo {
    * @return an instance with no position information.
    */
   public static StmtPositionInfo createNoStmtPositionInfo() {
-    return new StmtPositionInfo(NoPositionInformation.getInstance(), null);
+    return new StmtPositionInfo(NoPositionInfo.getInstance(), null);
   }
 
   /**
@@ -56,7 +56,7 @@ public final class StmtPositionInfo {
           Arrays.stream(operandPositions)
               .map(
                   op -> {
-                    return op == null ? NoPositionInformation.getInstance() : convert(op);
+                    return op == null ? NoPositionInfo.getInstance() : convert(op);
                   })
               .toArray(SourcePosition[]::new);
     else this.operandPositions = null;
@@ -76,7 +76,7 @@ public final class StmtPositionInfo {
     if (this.stmtPosition != null) {
       return this.stmtPosition;
     } else {
-      return NoPositionInformation.getInstance();
+      return NoPositionInfo.getInstance();
     }
   }
 
@@ -90,7 +90,7 @@ public final class StmtPositionInfo {
     if (this.operandPositions != null && index >= 0 && index < this.operandPositions.length) {
       return this.operandPositions[index];
     } else {
-      return NoPositionInformation.getInstance();
+      return NoPositionInfo.getInstance();
     }
   }
 

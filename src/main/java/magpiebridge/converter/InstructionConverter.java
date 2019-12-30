@@ -48,6 +48,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import magpiebridge.converter.sourceinfo.StmtPositionInfo;
+import magpiebridge.converter.tags.StmtPositionInfoTag;
 import soot.AbstractSootFieldRef;
 import soot.ArrayType;
 import soot.BooleanType;
@@ -108,6 +110,11 @@ import soot.jimple.internal.AbstractSwitchStmt;
 import soot.jimple.internal.JGotoStmt;
 import soot.jimple.internal.JIfStmt;
 
+/**
+ * Convert WALA instruction to Jimple {@link Stmt}.
+ *
+ * @author Linghui Luo
+ */
 public class InstructionConverter {
 
   private ClassConverter converter;
