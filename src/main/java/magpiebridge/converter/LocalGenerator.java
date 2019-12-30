@@ -3,10 +3,8 @@ package magpiebridge.converter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import soot.BooleanType;
 import soot.ByteType;
 import soot.CharType;
@@ -123,7 +121,8 @@ public class LocalGenerator {
       } else if (type.equals(UnknownType.v())) {
         appendNextUnknownTypeName(name);
       } else {
-        throw new RuntimeException("Unhandled Type of Local variable to Generate: "+type.toString());
+        throw new RuntimeException(
+            "Unhandled Type of Local variable to Generate: " + type.toString());
       }
 
       localName = name.toString();

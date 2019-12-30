@@ -1,12 +1,5 @@
 package magpiebridge.converter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl.JavaClass;
 import com.ibm.wala.cast.loader.AstClass;
 import com.ibm.wala.cast.loader.AstField;
@@ -22,7 +15,12 @@ import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.collections.HashSetFactory;
 import com.ibm.wala.util.intset.FixedSizeBitVector;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import soot.ArrayType;
 import soot.Body;
 import soot.BooleanType;
@@ -52,25 +50,26 @@ import soot.jimple.internal.JReturnVoidStmt;
 public class ClassConverter {
   private final HashMap<String, String> walaToSootNameTable;
   private final HashMap<String, Integer> clsWithInnerCls;
+  private SootClass convertingClass;
 
   public ClassConverter() {
     walaToSootNameTable = new HashMap<>();
     clsWithInnerCls = new HashMap<>();
   }
 
-  protected void createClass(JavaClass fromClass) {
-    String className = convertClassNameFromWala(fromClass.getName().toString());
-    if (!Scene.v().containsClass(className)) {
-      SootClass toClass = new SootClass(className);
-      Scene.v().addClass(toClass);
-    }
-  }
-
   protected void convertClass(JavaClass fromClass) {
     String className = convertClassNameFromWala(fromClass.getName().toString());
-    SootClass toClass = Scene.v().getSootClass(className);
-
+    SootClass toClass;
+    if (!Scene.v().containsClass(className)) {
+      toClass = new SootClass(className);
+      Scene.v().addClass(toClass);
+    } else toClass = Scene.v().getSootClass(className);
+    convertingClass = toClass;
     toClass.setApplicationClass();
+
+    // convert modifiers
+    int modifiers = convertModifiers(fromClass);
+    toClass.setModifiers(modifiers);
 
     // convert super class
     IClass sc = fromClass.getSuperclass();
@@ -96,10 +95,6 @@ public class ClassConverter {
     // add source position
     Position position = fromClass.getSourcePosition();
     toClass.addTag(new PositionTag(position));
-
-    // convert modifiers
-    int modifiers = convertModifiers(fromClass);
-    toClass.setModifiers(modifiers);
 
     // convert fields
     Set<IField> fields = HashSetFactory.make(fromClass.getDeclaredInstanceFields());
@@ -130,11 +125,15 @@ public class ClassConverter {
     }
   }
 
-  private SootClass getSootClass(String className) {
+  protected SootClass getSootClass(String className) {
     if (!Scene.v().containsClass(className)) {
       // class not in Scene need to be forced to resolve
       return Scene.v().forceResolve(className, SootClass.SIGNATURES);
     } else return Scene.v().getSootClass(className);
+  }
+
+  protected SootClass getConvertingClass() {
+    return convertingClass;
   }
 
   private SootMethod convertMethod(
@@ -182,13 +181,16 @@ public class ClassConverter {
     toMethod.addTag(new DebuggingInformationTag(debugInfo));
 
     Body body = createBody(modifiers, declaringClassType, walaMethod, toMethod);
-    if (body != null) toMethod.setActiveBody(body);
+    if (body != null) {
+      toMethod.setActiveBody(body);
+      toMethod.setPhantom(false);
+    }
     return toMethod;
   }
 
   private Body createBody(
       int modifiers, RefType declaringClassType, AstMethod walaMethod, SootMethod toMethod) {
-    if (walaMethod.isAbstract()) {
+    if (walaMethod.isAbstract() || walaMethod.isNative()) {
       return null;
     }
     JimpleBody toBody = Jimple.v().newBody(toMethod);
@@ -244,7 +246,7 @@ public class ClassConverter {
         // get exceptions which are not caught
         FixedSizeBitVector blocks = cfg.getExceptionalToExit();
         InstructionConverter instConverter =
-            new InstructionConverter(this, declaringClassType, walaMethod, localGenerator);
+            new InstructionConverter(this, walaMethod, localGenerator);
         Map<Stmt, Integer> stmt2IIndex = new HashMap<>();
         for (SSAInstruction inst : insts) {
           List<Stmt> retStmts = instConverter.convertInstruction(debugInfo, inst);
@@ -427,7 +429,7 @@ public class ClassConverter {
    * @param className in wala-format
    * @return className in soot.format
    */
-  private String convertClassNameFromWala(String className) {
+  protected String convertClassNameFromWala(String className) {
     String cl = className.intern();
     if (walaToSootNameTable.containsKey(cl)) {
       return walaToSootNameTable.get(cl);

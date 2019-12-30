@@ -26,8 +26,8 @@
 		<wala.version>1.5.4</wala.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.version>3.8.0</maven.compiler.version>
 	</properties>
-
 
 	<dependencies>
 		<dependency>

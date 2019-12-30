@@ -1,10 +1,8 @@
 package magpiebridge.converter;
 
-import java.util.Arrays;
-
-import javax.annotation.Nonnull;
-
 import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
+import java.util.Arrays;
+import javax.annotation.Nonnull;
 
 /**
  * This class stores position information stored for a statement.
@@ -53,16 +51,15 @@ public final class StmtPositionInfo {
    */
   public StmtPositionInfo(Position stmtPosition, Position[] operandPositions) {
     this.stmtPosition = convert(stmtPosition);
-    if(operandPositions!=null)
-    this.operandPositions =
-        Arrays.stream(operandPositions)
-            .map(
-                op -> {
-                  return op == null ? NoPositionInformation.getInstance() : convert(op);
-                })
-            .toArray(SourcePosition[]::new);
-    else
-    	this.operandPositions=null;
+    if (operandPositions != null)
+      this.operandPositions =
+          Arrays.stream(operandPositions)
+              .map(
+                  op -> {
+                    return op == null ? NoPositionInformation.getInstance() : convert(op);
+                  })
+              .toArray(SourcePosition[]::new);
+    else this.operandPositions = null;
   }
 
   private SourcePosition convert(Position pos) {

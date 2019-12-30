@@ -1,11 +1,5 @@
 package magpiebridge.converter;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.ibm.wala.cast.ir.ssa.AssignInstruction;
 import com.ibm.wala.cast.ir.ssa.AstAssertInstruction;
 import com.ibm.wala.cast.ir.ssa.AstLexicalAccess.Access;
@@ -48,14 +42,24 @@ import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.types.FieldReference;
 import com.ibm.wala.types.MethodReference;
 import com.ibm.wala.types.TypeReference;
-
+import com.ibm.wala.util.collections.Pair;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import soot.AbstractSootFieldRef;
 import soot.ArrayType;
 import soot.BooleanType;
+import soot.ByteType;
+import soot.DoubleType;
+import soot.FloatType;
 import soot.IntType;
 import soot.Local;
+import soot.LongType;
 import soot.RefType;
 import soot.Scene;
+import soot.ShortType;
 import soot.SootClass;
 import soot.SootFieldRef;
 import soot.SootMethodRef;
@@ -109,8 +113,7 @@ public class InstructionConverter {
   private ClassConverter converter;
   private final SymbolTable symbolTable;
   private final LocalGenerator localGenerator;
-  private final RefType declaringClassType;
-  private final SootClass declaringClass;
+  // private final RefType convertingClassType;
   private final AstMethod walaMethod;
   // <ifStmt, iindex>
   private final Map<JIfStmt, Integer> targetsOfIfStmts;
@@ -121,13 +124,8 @@ public class InstructionConverter {
   private final Map<Integer, Local> locals;
 
   public InstructionConverter(
-      ClassConverter converter,
-      RefType declaringClassType,
-      AstMethod walaMethod,
-      LocalGenerator localGenerator) {
+      ClassConverter converter, AstMethod walaMethod, LocalGenerator localGenerator) {
     this.converter = converter;
-    this.declaringClassType = declaringClassType;
-    this.declaringClass = Scene.v().getSootClass(declaringClassType.toString());
     this.walaMethod = walaMethod;
     this.symbolTable = walaMethod.symbolTable();
     this.localGenerator = localGenerator;
@@ -216,7 +214,7 @@ public class InstructionConverter {
     int i = inst.getIndex();
     Value index = null;
     if (symbolTable.isConstant(i)) {
-      index = getConstant(i);
+      index = getConstant(i).snd;
     } else {
       index = getLocal(IntType.v(), i);
     }
@@ -224,7 +222,7 @@ public class InstructionConverter {
     Value rvalue = null;
     int value = inst.getValue();
     if (symbolTable.isConstant(value)) {
-      rvalue = getConstant(value);
+      rvalue = getConstant(value).snd;
     } else {
       rvalue = getLocal(base.getType(), value);
     }
@@ -246,7 +244,7 @@ public class InstructionConverter {
     int i = inst.getIndex();
     Value index;
     if (symbolTable.isConstant(i)) {
-      index = getConstant(i);
+      index = getConstant(i).snd;
     } else {
       index = getLocal(IntType.v(), i);
     }
@@ -329,9 +327,9 @@ public class InstructionConverter {
     List<Stmt> stmts = new ArrayList<>();
     // create a static field for checking if assertion is disabled.
     Local testLocal = localGenerator.generateLocal(BooleanType.v());
-
+    SootClass convertingClass = this.converter.getConvertingClass();
     SootFieldRef assertionsDisabled =
-        new AbstractSootFieldRef(declaringClass, "$assertionsDisabled", BooleanType.v(), true);
+        new AbstractSootFieldRef(convertingClass, "$assertionsDisabled", BooleanType.v(), true);
     StaticFieldRef assertFieldRef = Jimple.v().newStaticFieldRef(assertionsDisabled);
     Position[] operandPos = new Position[1];
     operandPos[0] = debugInfo.getOperandPosition(inst.iIndex(), 0);
@@ -394,16 +392,17 @@ public class InstructionConverter {
       Type type = converter.convertType(access.type);
       Value right;
       if (symbolTable.isConstant(access.valueNumber)) {
-        right = getConstant(access.valueNumber);
+        right = getConstant(access.valueNumber).snd;
       } else {
         right = getLocal(type, access.valueNumber);
       }
       // TODO check modifier
       Value left;
-      if (!walaMethod.isStatic()) {
 
+      if (!walaMethod.isStatic()) {
         SootFieldRef fieldRef =
-            new AbstractSootFieldRef(declaringClass, "val$" + access.variableName, type, false);
+            new AbstractSootFieldRef(
+                converter.getConvertingClass(), "val$" + access.variableName, type, false);
         left = Jimple.v().newInstanceFieldRef(localGenerator.getThisLocal(), fieldRef);
         // TODO in old jimple this is not supported
       } else {
@@ -429,7 +428,8 @@ public class InstructionConverter {
       Value rvalue = null;
       if (!walaMethod.isStatic()) {
         SootFieldRef fieldRef =
-            new AbstractSootFieldRef(declaringClass, "val$" + access.variableName, type, false);
+            new AbstractSootFieldRef(
+                converter.getConvertingClass(), "val$" + access.variableName, type, false);
         rvalue = Jimple.v().newInstanceFieldRef(localGenerator.getThisLocal(), fieldRef);
       } else {
         rvalue = localGenerator.generateLocal(type);
@@ -451,7 +451,7 @@ public class InstructionConverter {
     Value variable = getLocal(enclosingType, inst.getDef());
     // TODO check modifier
     SootFieldRef fieldRef =
-        new AbstractSootFieldRef(declaringClass, "this$0", enclosingType, false);
+        new AbstractSootFieldRef(converter.getConvertingClass(), "this$0", enclosingType, false);
     InstanceFieldRef rvalue =
         Jimple.v().newInstanceFieldRef(localGenerator.getThisLocal(), fieldRef);
     // TODO: [ms] no instruction example found to add positioninfo
@@ -469,7 +469,7 @@ public class InstructionConverter {
     Value rvalue = null;
     int val = inst.getVal();
     if (symbolTable.isConstant(val)) {
-      rvalue = getConstant(val);
+      rvalue = getConstant(val).snd;
     } else {
       rvalue = getLocal(converter.convertType(types[0]), val);
     }
@@ -559,11 +559,13 @@ public class InstructionConverter {
     Value op;
     Type type = UnknownType.v();
     if (symbolTable.isConstant(use)) {
-      op = getConstant(use);
+      Pair<Type, Constant> pair = getConstant(use);
+      op = pair.snd;
+      type = pair.fst;
     } else {
       op = getLocal(type, use);
+      type = op.getType();
     }
-    type = op.getType();
     Local left = getLocal(type, def);
 
     Position[] operandPos = new Position[2];
@@ -592,6 +594,9 @@ public class InstructionConverter {
   private Stmt convertPutInstruction(DebuggingInformation debugInfo, SSAPutInstruction inst) {
     FieldReference fieldRef = inst.getDeclaredField();
     Type fieldType = converter.convertType(inst.getDeclaredFieldType());
+    String declaringClassName =
+        converter.convertClassNameFromWala(fieldRef.getDeclaringClass().getName().toString());
+    SootClass declaringClass = converter.getSootClass(declaringClassName);
     Value fieldValue;
     if (inst.isStatic()) {
       SootFieldRef ref =
@@ -599,7 +604,7 @@ public class InstructionConverter {
       fieldValue = Jimple.v().newStaticFieldRef(ref);
     } else {
       int ref = inst.getRef();
-      Local base = getLocal(declaringClassType, ref);
+      Local base = getLocal(declaringClass.getType(), ref);
       SootFieldRef field =
           new AbstractSootFieldRef(declaringClass, fieldRef.getName().toString(), fieldType, false);
       fieldValue = Jimple.v().newInstanceFieldRef(base, field);
@@ -607,7 +612,7 @@ public class InstructionConverter {
     Value value = null;
     int val = inst.getVal();
     if (symbolTable.isConstant(val)) {
-      value = getConstant(val);
+      value = getConstant(val).snd;
     } else {
       value = getLocal(fieldType, val);
     }
@@ -632,7 +637,7 @@ public class InstructionConverter {
       int use = inst.getUse(0);
       Value size = null;
       if (symbolTable.isConstant(use)) {
-        size = getConstant(use);
+        size = getConstant(use).snd;
       } else {
         // TODO: size type unsure
         size = getLocal(IntType.v(), use);
@@ -684,7 +689,7 @@ public class InstructionConverter {
     Value lvalue = getLocal(toType, def);
     Value rvalue = null;
     if (symbolTable.isConstant(use)) {
-      rvalue = getConstant(use);
+      rvalue = getConstant(use).snd;
     } else {
       rvalue = getLocal(fromType, use);
     }
@@ -733,7 +738,7 @@ public class InstructionConverter {
       int use = invokeInst.getUse(i);
       Value arg;
       if (symbolTable.isConstant(use)) {
-        arg = getConstant(use);
+        arg = getConstant(use).snd;
       } else {
         if (invokeInst.getNumberOfUses() > paraTypes.size()) {
           arg = getLocal(paraTypes.get(i - 1), use);
@@ -744,18 +749,17 @@ public class InstructionConverter {
       assert (arg != null);
       args.add(arg);
     }
-
+    String declaringClassName =
+        converter.convertClassNameFromWala(target.getDeclaringClass().getName().toString());
+    SootClass declaringclass = this.converter.getSootClass(declaringClassName);
     if (!callee.isStatic()) {
       SootMethodRef methodRef =
           new SootMethodRefImpl(
-              declaringClass, target.getName().toString(), paraTypes, returnType, false);
+              declaringclass, target.getName().toString(), paraTypes, returnType, false);
       int receiver = invokeInst.getReceiver();
       Type classType = converter.convertType(target.getDeclaringClass());
       Local base = getLocal(classType, receiver);
       if (callee.isSpecial()) {
-        Type baseType = UnknownType.v();
-        // TODO. baseType could be a problem.
-        base = getLocal(baseType, receiver);
         invoke = Jimple.v().newSpecialInvokeExpr(base, methodRef, args); // constructor
       } else if (callee.isVirtual()) {
         invoke = Jimple.v().newVirtualInvokeExpr(base, methodRef, args);
@@ -767,7 +771,7 @@ public class InstructionConverter {
     } else {
       SootMethodRef methodRef =
           new SootMethodRefImpl(
-              declaringClass, target.getName().toString(), paraTypes, returnType, true);
+              declaringclass, target.getName().toString(), paraTypes, returnType, true);
       invoke = Jimple.v().newStaticInvokeExpr(methodRef, args);
     }
 
@@ -860,7 +864,7 @@ public class InstructionConverter {
     } else {
       Value ret;
       if (symbolTable.isConstant(result)) {
-        ret = getConstant(result);
+        ret = getConstant(result).snd;
       } else {
         ret = this.getLocal(UnknownType.v(), result);
       }
@@ -883,14 +887,18 @@ public class InstructionConverter {
     Type type = UnknownType.v();
     Value op1;
     if (symbolTable.isConstant(val1)) {
-      op1 = getConstant(val1);
+      Pair<Type, Constant> pair = getConstant(val1);
+      op1 = pair.snd;
+      type = pair.fst;
     } else {
       op1 = getLocal(type, val1);
+      type = op1.getType();
     }
-    type = op1.getType();
     Value op2 = null;
     if (symbolTable.isConstant(val2)) {
-      op2 = getConstant(val2);
+      Pair<Type, Constant> pair = getConstant(val2);
+      op2 = pair.snd;
+      if (type.equals(UnknownType.v())) type = pair.fst;
     } else {
       op2 = getLocal(type, val2);
     }
@@ -967,24 +975,19 @@ public class InstructionConverter {
     int def = inst.getDef(0);
     FieldReference fieldRef = inst.getDeclaredField();
     Type fieldType = converter.convertType(inst.getDeclaredFieldType());
+    String declaringClassName =
+        converter.convertClassNameFromWala(fieldRef.getDeclaringClass().getName().toString());
+    SootClass declaringClass = converter.getSootClass(declaringClassName);
     Value rvalue = null;
     if (inst.isStatic()) {
       AbstractSootFieldRef ref =
-          new AbstractSootFieldRef(
-              Scene.v().getSootClass(declaringClassType.toString()),
-              fieldRef.getName().toString(),
-              fieldType,
-              true);
+          new AbstractSootFieldRef(declaringClass, fieldRef.getName().toString(), fieldType, true);
       rvalue = Jimple.v().newStaticFieldRef(ref);
     } else {
       int ref = inst.getRef();
-      Local base = getLocal(declaringClassType, ref);
+      Local base = getLocal(declaringClass.getType(), ref);
       AbstractSootFieldRef r =
-          new AbstractSootFieldRef(
-              Scene.v().getSootClass(declaringClassType.toString()),
-              fieldRef.getName().toString(),
-              fieldType,
-              false);
+          new AbstractSootFieldRef(declaringClass, fieldRef.getName().toString(), fieldType, false);
       rvalue = Jimple.v().newInstanceFieldRef(base, r);
     }
 
@@ -999,25 +1002,27 @@ public class InstructionConverter {
     return ret;
   }
 
-  private Constant getConstant(int valueNumber) {
+  private Pair<Type, Constant> getConstant(int valueNumber) {
     Object value = symbolTable.getConstantValue(valueNumber);
     if (value instanceof Boolean) {
-
-      if ((Boolean) value) return IntConstant.v(1);
-      else return IntConstant.v(0);
-
-    } else if (value instanceof Byte || value instanceof Short || value instanceof Integer) {
-      return IntConstant.v((int) value);
+      if ((Boolean) value) return Pair.make(BooleanType.v(), IntConstant.v(1));
+      else return Pair.make(BooleanType.v(), IntConstant.v(0));
+    } else if (value instanceof Byte) {
+      return Pair.make(ByteType.v(), IntConstant.v((int) value));
+    } else if (value instanceof Short) {
+      return Pair.make(ShortType.v(), IntConstant.v((int) value));
+    } else if (value instanceof Integer) {
+      return Pair.make(IntType.v(), IntConstant.v((int) value));
     } else if (symbolTable.isLongConstant(valueNumber)) {
-      return LongConstant.v((long) value);
+      return Pair.make(LongType.v(), LongConstant.v((long) value));
     } else if (symbolTable.isDoubleConstant(valueNumber)) {
-      return DoubleConstant.v((double) value);
+      return Pair.make(DoubleType.v(), DoubleConstant.v((double) value));
     } else if (symbolTable.isFloatConstant(valueNumber)) {
-      return FloatConstant.v((float) value);
+      return Pair.make(FloatType.v(), FloatConstant.v((float) value));
     } else if (symbolTable.isStringConstant(valueNumber)) {
-      return StringConstant.v((String) value);
+      return Pair.make(RefType.v("java.lang.String"), StringConstant.v((String) value));
     } else if (symbolTable.isNullConstant(valueNumber)) {
-      return NullConstant.v();
+      return Pair.make(NullConstant.v().getType(), NullConstant.v());
     } else {
       throw new RuntimeException("Unsupported constant type: " + value.getClass().toString());
     }
@@ -1027,13 +1032,14 @@ public class InstructionConverter {
     if (locals.containsKey(valueNumber)) {
       return locals.get(valueNumber);
     }
-    if (valueNumber == 1 || type.equals(declaringClassType)) {
+    if (valueNumber == 1) {
       // in wala symbol numbers start at 1 ... the "this" parameter will be symbol
       // number 1 in a
       // non-static method.
       if (!walaMethod.isStatic()) {
-
-        return localGenerator.getThisLocal();
+        {
+          return localGenerator.getThisLocal();
+        }
       }
     }
     if (symbolTable.isParameter(valueNumber)) {
