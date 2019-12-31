@@ -8,7 +8,7 @@ Soot comprises a solid Java bytecode front end. However, the bytecode only has t
 This IRConverter takes WALA’s Java source-code front end to generate WALA IR (non-SSA) and convert it to Soot IR. Soot has multiple IRs, the most commonly used IR is called Jimple --- the IR considered by this IRConverter.
 
 The following figure shows the IR statements considered by this IRConverter. 
-<img src="https://github.com/MagpieBridge/IRConverter/blob/master/doc/conversion.PNG/.PNG"  width="800">
+<img src="https://github.com/MagpieBridge/IRConverter/blob/master/doc/conversion.PNG"  width="800">
 
 This IRConverter was developed for our paper: [MagpieBridge: A General Approach to Integrating Static Analyses into IDEs and Editors](https://drops.dagstuhl.de/opus/volltexte/2019/10813/pdf/LIPIcs-ECOOP-2019-21.pdf) (ECOOP 2019). The parent project MagpieBridge can be found [here](https://github.com/MagpieBridge/MagpieBridge). 
 
