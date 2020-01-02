@@ -1,3 +1,6 @@
+/*
+ * @author Linghui Luo
+ */
 package magpiebridge.converter;
 
 import java.util.HashMap;
@@ -56,12 +59,19 @@ public class LocalGenerator {
   /**
    * Creates Locals {@link Local} with a standard naming scheme. If a Set of Locals is provided, the
    * LocalGenerator checks whether the name is already taken.
+   *
+   * @param existingLocals the existing locals
    */
   public LocalGenerator(@Nonnull Set<Local> existingLocals) {
     locals = existingLocals;
   }
 
-  /** generate this local with given type */
+  /**
+   * Generate local for this reference with given type.
+   *
+   * @param type the type
+   * @return the local
+   */
   public Local generateThisLocal(@Nonnull Type type) {
     if (this.thisLocal == null) {
       this.thisLocal = generateField(type);
@@ -69,12 +79,22 @@ public class LocalGenerator {
     return this.thisLocal;
   }
 
-  /** generates a new {@link Local} given the type for field. */
+  /**
+   * generates a new {@link Local} given the type for field.
+   *
+   * @param type the type
+   * @return the local
+   */
   public Local generateField(@Nonnull Type type) {
     return generate(type, true);
   }
 
-  /** generates a new {@link Local} given the type for local. */
+  /**
+   * generates a new {@link Local} given the type for local.
+   *
+   * @param type the type
+   * @return the local
+   */
   public Local generateLocal(@Nonnull Type type) {
     return generate(type, false);
   }

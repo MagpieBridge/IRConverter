@@ -430,7 +430,7 @@ public class ClassConverter {
   }
 
   /**
-   * Convert className in wala-format to soot-format, e.g., wala-format: Ljava/lang/String ->
+   * Convert className in wala-format to soot-format, e.g., wala-format: Ljava/lang/String
    * soot-format: java.lang.String.
    *
    * @param className in wala-format

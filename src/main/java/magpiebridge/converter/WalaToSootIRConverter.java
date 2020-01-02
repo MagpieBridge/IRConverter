@@ -66,6 +66,11 @@ public class WalaToSootIRConverter {
     factory = new ECJClassLoaderFactory(scope.getExclusions());
   }
 
+  /**
+   * Initialize soot options, override this if you want to set up the options differently.
+   *
+   * @param libPath
+   */
   protected void initializeSoot(Set<String> libPath) {
     G.v();
     G.reset();

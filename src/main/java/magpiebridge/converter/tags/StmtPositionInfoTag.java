@@ -27,7 +27,7 @@ public class StmtPositionInfoTag implements Tag {
     this.stmtPos = stmtPos;
   }
 
-  public StmtPositionInfo getPositionInfo() {
+  public StmtPositionInfo getStmtPositionInfo() {
     return this.stmtPos;
   }
 

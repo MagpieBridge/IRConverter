@@ -10,8 +10,8 @@ import javax.annotation.Nonnull;
  * @author Linghui Luo
  */
 public final class StmtPositionInfo {
-  private final SourcePosition stmtPosition;
-  private final SourcePosition[] operandPositions;
+  private final Position stmtPosition;
+  private final Position[] operandPositions;
 
   /**
    * Create an instance with no position information.
@@ -23,48 +23,22 @@ public final class StmtPositionInfo {
   }
 
   /**
-   * Create an instance only from line number, this is usually the case from byte code front-end.
-   *
-   * @param lineNumber the line number of the statement.
-   */
-  public StmtPositionInfo(int lineNumber) {
-    this.stmtPosition = new SourcePosition(lineNumber, -1, lineNumber, -1);
-    this.operandPositions = null;
-  }
-
-  /**
-   * Create an instance from given statement position and operand positions.
-   *
-   * @param stmtPosition the position of the statement
-   * @param operandPositions the operand positions
-   */
-  public StmtPositionInfo(SourcePosition stmtPosition, SourcePosition[] operandPositions) {
-    this.stmtPosition = stmtPosition;
-    this.operandPositions = operandPositions;
-  }
-
-  /**
    * Create an instance from given statement position and operand positions.
    *
    * @param stmtPosition the position of the statement
    * @param operandPositions the operand positions
    */
   public StmtPositionInfo(Position stmtPosition, Position[] operandPositions) {
-    this.stmtPosition = convert(stmtPosition);
+    this.stmtPosition = stmtPosition;
     if (operandPositions != null)
       this.operandPositions =
           Arrays.stream(operandPositions)
               .map(
                   op -> {
-                    return op == null ? NoPositionInfo.getInstance() : convert(op);
+                    return op == null ? NoPositionInfo.getInstance() : op;
                   })
-              .toArray(SourcePosition[]::new);
+              .toArray(Position[]::new);
     else this.operandPositions = null;
-  }
-
-  private SourcePosition convert(Position pos) {
-    return new SourcePosition(
-        pos.getFirstLine(), pos.getFirstCol(), pos.getLastLine(), pos.getLastCol());
   }
 
   /**
@@ -72,7 +46,7 @@ public final class StmtPositionInfo {
    *
    * @return the position of the statement
    */
-  public SourcePosition getStmtPosition() {
+  public Position getStmtPosition() {
     if (this.stmtPosition != null) {
       return this.stmtPosition;
     } else {
@@ -86,7 +60,7 @@ public final class StmtPositionInfo {
    * @param index the operand index
    * @return the position of the given operand
    */
-  public SourcePosition getOperandPosition(int index) {
+  public Position getOperandPosition(int index) {
     if (this.operandPositions != null && index >= 0 && index < this.operandPositions.length) {
       return this.operandPositions[index];
     } else {
@@ -111,12 +85,12 @@ public final class StmtPositionInfo {
   }
 
   @Nonnull
-  public StmtPositionInfo withStmtPosition(SourcePosition stmtPosition) {
+  public StmtPositionInfo withStmtPosition(Position stmtPosition) {
     return new StmtPositionInfo(stmtPosition, operandPositions);
   }
 
   @Nonnull
-  public StmtPositionInfo withOperandPositions(SourcePosition[] operandPositions) {
+  public StmtPositionInfo withOperandPositions(Position[] operandPositions) {
     return new StmtPositionInfo(stmtPosition, operandPositions);
   }
 }
