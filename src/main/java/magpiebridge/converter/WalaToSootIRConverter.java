@@ -3,19 +3,6 @@
  */
 package magpiebridge.converter;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.jar.JarFile;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl.JavaClass;
 import com.ibm.wala.cast.java.translator.jdt.ecj.ECJClassLoaderFactory;
@@ -30,7 +17,17 @@ import com.ibm.wala.properties.WalaProperties;
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.util.config.FileOfClasses;
 import com.ibm.wala.util.warnings.Warnings;
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.jar.JarFile;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import soot.G;
 import soot.Scene;
 import soot.options.Options;
