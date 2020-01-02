@@ -17,12 +17,12 @@ For scientific usage, please **cite the paper** [[BibTex](https://drops.dagstuhl
 
 ## How to use IRConverter?
 You can either 
-1. use the release by adding this to your `pom.xml` directly (see [github package]()) 
+1. use the release by adding this to your `pom.xml` directly (see [github package](https://github.com/MagpieBridge/IRConverter/packages/96202)) 
 ````
 <dependency>
   <groupId>magpiebridge</groupId>
   <artifactId>irconverter</artifactId>
-  <version>0.0.1</version>
+  <version>0.1.0</version>
 </dependency>
 
 ````
