@@ -213,7 +213,11 @@ public class LocalGenerator {
     return sootLocal;
   }
 
-  /** Return all locals created for the body referenced in this LocalGenrator. */
+  /**
+   * Return all locals created for the body referenced in this LocalGenrator.
+   *
+   * @return the locals
+   */
   public Set<Local> getLocals() {
     return this.locals;
   }

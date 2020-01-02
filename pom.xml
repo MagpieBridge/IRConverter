@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>magpiebridge</groupId>
 	<artifactId>irconverter</artifactId>
-	<version>0.0.1</version>
+	<version>0.1.0</version>
 	<packaging>jar</packaging>
 	<name>IRConverter</name>
 	<url>https://github.com/MagpieBridge/IRConverter</url>
@@ -117,6 +117,7 @@
 				<executions>
 					<execution>
 						<id>attach-sources</id>
+						<phase>install</phase>
 						<goals>
 							<goal>jar-no-fork</goal>
 						</goals>
@@ -129,6 +130,7 @@
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
+						<phase>install</phase>
 						<goals>
 							<goal>jar</goal>
 						</goals>
@@ -142,10 +144,10 @@
 		<developerConnection>scm:git:git@github.com:MagpieBridge/IRConverter.git</developerConnection>
 		<url>https://github.com/MagpieBridge/IRConverter</url>
 	</scm>
-	
+
 	<distributionManagement>
 		<repository>
-			<id>github.magpiebridge.irconverter</id>
+			<id>github</id>
 			<name>GitHub MagpieBridge IRConverter Apache Maven Packages</name>
 			<url>https://maven.pkg.github.com/MagpieBridge/IRConverter</url>
 		</repository>
