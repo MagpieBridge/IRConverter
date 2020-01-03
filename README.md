@@ -17,14 +17,23 @@ For scientific usage, please **cite the paper** [[BibTex](https://drops.dagstuhl
 
 ## How to use IRConverter?
 You can either 
-1. use the release by adding this to your `pom.xml` directly (see [github package](https://github.com/MagpieBridge/IRConverter/packages/96202)) 
+1. IRConverter is published on the GitHub Package Registry. You can use the release by adding the following lines to your `pom.xml`  (see all [github package](https://github.com/MagpieBridge/IRConverter/packages/96202)). You can follow [these instructions](https://github.com/MagpieBridge/MagpieBridge/wiki/How-To-Install-a-GitHub-Maven-Package).  
 ````
-<dependency>
-  <groupId>magpiebridge</groupId>
-  <artifactId>irconverter</artifactId>
-  <version>0.1.0</version>
-</dependency>
+<dependencies>
+  <dependency>
+    <groupId>magpiebridge</groupId>
+    <artifactId>irconverter</artifactId>
+    <version>0.1.0</version>
+  </dependency>
+</dependencies>
 
+<repositories>
+  <repository>
+    <id>github</id>
+    <name>GitHub MagpieBridge IRConverter Apache Maven Packages</name>
+    <url>https://maven.pkg.github.com/MagpieBridge/IRConverter</url>
+  </repository>
+</repositories>
 ````
 
 2. or build IRConverter by yourself 
