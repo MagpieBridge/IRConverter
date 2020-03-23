@@ -24,7 +24,7 @@ public class ReflectionTest extends MinimalTestSuiteBase {
             "$r2 = class \"Ljava/lang/Class\"",
             "$r3 = <java.lang.System: java.io.PrintStream out>",
             "virtualinvoke $r3.<java.io.PrintStream: void println(java.lang.Object)>($r2)",
-            "$r4 = newarray (java.lang.Class[])[0]",
+            "$r4 = newarray (java.lang.Class)[0]",
             "$r5 = virtualinvoke $r2.<java.lang.Class: java.lang.reflect.Constructor getConstructor(java.lang.Class[])>($r4)",
             "$r6 = <java.lang.System: java.io.PrintStream out>",
             "$r7 = virtualinvoke $r5.<java.lang.reflect.Constructor: java.lang.String getName()>()",

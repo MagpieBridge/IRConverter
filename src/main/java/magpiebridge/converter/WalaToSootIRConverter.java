@@ -8,6 +8,7 @@ import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl.JavaClass;
 import com.ibm.wala.cast.java.translator.jdt.ecj.ECJClassLoaderFactory;
 import com.ibm.wala.classLoader.ClassLoaderFactory;
 import com.ibm.wala.classLoader.IClass;
+import com.ibm.wala.classLoader.Module;
 import com.ibm.wala.classLoader.SourceDirectoryTreeModule;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.cha.ClassHierarchyException;
@@ -22,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
@@ -66,6 +68,25 @@ public class WalaToSootIRConverter {
       e.printStackTrace();
     }
     setExclusions(exclusionFilePath);
+    factory = new ECJClassLoaderFactory(scope.getExclusions());
+  }
+
+  public WalaToSootIRConverter(@Nonnull Collection<? extends Module> files, Set<String> libPath) {
+    initializeSoot(libPath);
+    this.classConverter = new ClassConverter();
+    addScopesForJava();
+    for (Module file : files) {
+      scope.addToScope(JavaSourceAnalysisScope.SOURCE, file);
+    }
+    try {
+      // add Jars to scope
+      for (String libJar : libPath) {
+        scope.addToScope(ClassLoaderReference.Primordial, new JarFile(libJar));
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    setExclusions(null);
     factory = new ECJClassLoaderFactory(scope.getExclusions());
   }
 

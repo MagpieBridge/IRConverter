@@ -648,7 +648,9 @@ public class InstructionConverter {
         // TODO: size type unsure
         size = getLocal(IntType.v(), use);
       }
-      rvalue = Jimple.v().newNewArrayExpr(type, size);
+      Type baseType =
+          converter.convertType(inst.getNewSite().getDeclaredType().getArrayElementType());
+      rvalue = Jimple.v().newNewArrayExpr(baseType, size);
     } else {
       rvalue = Jimple.v().newNewExpr((RefType) type);
     }
