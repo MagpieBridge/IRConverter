@@ -39,7 +39,7 @@ public class WalaToSootIRConverter {
   public AnalysisScope scope;
   public ClassLoaderFactory factory;
   private ClassConverter classConverter;
-  private final File walaPropertiesFile = new File("target/classes/wala.properties");
+  private final File walaPropertiesFile = new File("wala.properties");
 
   public WalaToSootIRConverter(@Nonnull Set<String> sourcePath) {
     this(sourcePath, Collections.emptySet(), null);
