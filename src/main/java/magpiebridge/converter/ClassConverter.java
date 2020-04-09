@@ -66,7 +66,7 @@ public class ClassConverter {
     clsWithInnerCls = new HashMap<>();
   }
 
-  protected void convertClass(JavaClass fromClass) {
+  public void convertClass(JavaClass fromClass) {
     String className = convertClassNameFromWala(fromClass.getName().toString());
     SootClass toClass;
     if (!Scene.v().containsClass(className)) {
@@ -110,9 +110,11 @@ public class ClassConverter {
     fields.addAll(fromClass.getDeclaredStaticFields());
     for (IField walaField : fields) {
       SootField sootField = convertField(className, (AstField) walaField);
-      toClass.addField(sootField);
-      sootField.setDeclaringClass(toClass);
-      sootField.setDeclared(true);
+      if (!toClass.declaresField(sootField.getName(), sootField.getType())) {
+        toClass.addField(sootField);
+        sootField.setDeclaringClass(toClass);
+        sootField.setDeclared(true);
+      }
     }
     if (outerClass != null) {
       // create enclosing reference to outerClass

@@ -35,11 +35,12 @@ import soot.Scene;
 import soot.options.Options;
 
 public class WalaToSootIRConverter {
-  private IClassHierarchy classHierarchy;
-  public AnalysisScope scope;
-  public ClassLoaderFactory factory;
+  protected IClassHierarchy classHierarchy;
+  protected AnalysisScope scope;
+  protected ClassLoaderFactory factory;
   private ClassConverter classConverter;
   private final File walaPropertiesFile = new File("wala.properties");
+  protected WalaOptions walaOptions = new WalaOptions();
 
   public WalaToSootIRConverter(@Nonnull Set<String> sourcePath) {
     this(sourcePath, Collections.emptySet(), null);
@@ -90,6 +91,10 @@ public class WalaToSootIRConverter {
     factory = new ECJClassLoaderFactory(scope.getExclusions());
   }
 
+  public void setWalaOptions(WalaOptions walaOptions) {
+    this.walaOptions = walaOptions;
+  }
+
   /**
    * Initialize soot options, override this if you want to set up the options differently.
    *
@@ -110,7 +115,6 @@ public class WalaToSootIRConverter {
     Options.v().set_allow_phantom_refs(true);
     Options.v().set_prepend_classpath(true);
     Options.v().set_full_resolver(true);
-
     Scene.v().loadNecessaryClasses();
   }
 
@@ -118,7 +122,6 @@ public class WalaToSootIRConverter {
     if (exclusionFilePath == null) {
       return;
     }
-
     File exclusionFile = new File(exclusionFilePath);
     if (exclusionFile.isFile()) {
       FileOfClasses classes;
@@ -166,16 +169,20 @@ public class WalaToSootIRConverter {
   }
 
   /** Use WALA's JAVA source code front-end to build class hierarchy. */
-  private void buildClassHierachy() {
+  protected void buildClassHierachy() {
     try {
-      this.classHierarchy = ClassHierarchyFactory.make(scope, factory);
+      if (!walaOptions.allowPhantomClass()) {
+        this.classHierarchy = ClassHierarchyFactory.make(scope, factory);
+      } else {
+        this.classHierarchy = ClassHierarchyFactory.makeWithRoot(scope, factory);
+      }
       Warnings.clear();
     } catch (ClassHierarchyException e) {
       throw new RuntimeException(e);
     }
   }
 
-  private Iterator<IClass> iterateWalaJavaSourceClasses() {
+  protected Iterator<IClass> iterateWalaJavaSourceClasses() {
     if (classHierarchy == null) {
       try {
         buildClassHierachy();
