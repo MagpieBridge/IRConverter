@@ -14,7 +14,6 @@ public class SynchronizedBlockTest extends MinimalTestSuiteBase {
         "run", getDeclaredClassSignature(), "void", Collections.emptyList());
   }
 
-  /** TODO assertTrue(isSynchronized); */
   @Override
   public List<String> expectedBodyStmts() {
     return Stream.of(
