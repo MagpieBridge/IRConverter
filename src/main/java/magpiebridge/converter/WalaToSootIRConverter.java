@@ -39,8 +39,8 @@ public class WalaToSootIRConverter {
   protected AnalysisScope scope;
   protected ClassLoaderFactory factory;
   private ClassConverter classConverter;
-  private final File walaPropertiesFile = new File("wala.properties");
-  protected WalaOptions walaOptions = new WalaOptions();
+  private File walaPropertiesFile;
+  protected WalaOptions walaOptions;
 
   public WalaToSootIRConverter(@Nonnull Set<String> sourcePath) {
     this(sourcePath, Collections.emptySet(), null);
@@ -51,7 +51,11 @@ public class WalaToSootIRConverter {
   }
 
   public WalaToSootIRConverter(
-      @Nonnull Set<String> sourcePath, @Nonnull Set<String> libPath, String exclusionFilePath) {
+      @Nonnull Set<String> sourcePath,
+      @Nonnull Set<String> libPath,
+      String exclusionFilePath,
+      WalaOptions walaOptions) {
+    this.walaOptions = walaOptions;
     initializeSoot(libPath);
     this.classConverter = new ClassConverter();
     addScopesForJava();
@@ -72,7 +76,18 @@ public class WalaToSootIRConverter {
     factory = new ECJClassLoaderFactory(scope.getExclusions());
   }
 
+  public WalaToSootIRConverter(
+      @Nonnull Set<String> sourcePath, @Nonnull Set<String> libPath, String exclusionFilePath) {
+    this(sourcePath, libPath, exclusionFilePath, new WalaOptions());
+  }
+
   public WalaToSootIRConverter(@Nonnull Collection<? extends Module> files, Set<String> libPath) {
+    this(files, libPath, new WalaOptions());
+  }
+
+  public WalaToSootIRConverter(
+      @Nonnull Collection<? extends Module> files, Set<String> libPath, WalaOptions walaOptions) {
+    this.walaOptions = walaOptions;
     initializeSoot(libPath);
     this.classConverter = new ClassConverter();
     addScopesForJava();
@@ -89,10 +104,6 @@ public class WalaToSootIRConverter {
     }
     setExclusions(null);
     factory = new ECJClassLoaderFactory(scope.getExclusions());
-  }
-
-  public void setWalaOptions(WalaOptions walaOptions) {
-    this.walaOptions = walaOptions;
   }
 
   /**
@@ -155,6 +166,7 @@ public class WalaToSootIRConverter {
 
   /** Create wala.properties to class path */
   private void createWalaproperties() {
+    File walaPropertiesFile = new File(walaOptions.getPathOfWalaProperties());
     if (!walaPropertiesFile.exists()) {
       PrintWriter pw;
       try {
