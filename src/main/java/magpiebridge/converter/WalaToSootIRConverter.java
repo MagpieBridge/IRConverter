@@ -38,22 +38,61 @@ import soot.G;
 import soot.Scene;
 import soot.options.Options;
 
+/**
+ * The Class WalaToSootIRConverter.
+ *
+ * @author Linghui Luo
+ * @author João Pereira
+ */
 public class WalaToSootIRConverter {
+
+  /** The class hierarchy. */
   protected IClassHierarchy classHierarchy;
+
+  /** The wala analysis scope. */
   protected AnalysisScope scope;
+
+  /** The wala class loader factory. */
   protected ClassLoaderFactory factory;
+
+  /** The class converter. */
   private ClassConverter classConverter;
+
+  /** The wala properties file. */
   private File walaPropertiesFile;
+
+  /** The wala options. */
   protected WalaOptions walaOptions;
 
+  /**
+   * Instantiates a new wala to soot IR converter.
+   *
+   * @param sourcePath the set of paths to source code directories
+   */
   public WalaToSootIRConverter(@Nonnull Set<String> sourcePath) {
     this(sourcePath, Collections.emptySet(), null);
   }
 
+  /**
+   * Instantiates a new wala to soot IR converter.
+   *
+   * @param sourcePath the set of paths to source code directories
+   * @param libPath the set of paths to library code, either .jar file or .class file. Java standard
+   *     libraries are added by default.
+   */
   public WalaToSootIRConverter(@Nonnull Set<String> sourcePath, @Nonnull Set<String> libPath) {
     this(sourcePath, libPath, null);
   }
 
+  /**
+   * Instantiates a new wala to soot IR converter.
+   *
+   * @param sourcePath the set of paths to source code directories
+   * @param libPath the set of paths to library code, either .jar file or .class file. Java standard
+   *     libraries are added by default.
+   * @param exclusionFilePath the exclusion file path contains classes you want to exclude
+   * @param walaOptions the wala options
+   */
   public WalaToSootIRConverter(
       @Nonnull Set<String> sourcePath,
       @Nonnull Set<String> libPath,
@@ -69,7 +108,7 @@ public class WalaToSootIRConverter {
           JavaSourceAnalysisScope.SOURCE, new SourceDirectoryTreeModule(new File(path)));
     }
     try {
-      scope.addToScope(buildLibPathScope(libPath, ClassLoaderReference.Primordial));
+      scope.addToScope(buildLibPathScope(libPath, ClassLoaderReference.Extension));
     } catch (IOException | InvalidClassFileException e) {
       e.printStackTrace();
     }
@@ -77,15 +116,38 @@ public class WalaToSootIRConverter {
     factory = new ECJClassLoaderFactory(scope.getExclusions());
   }
 
+  /**
+   * Instantiates a new wala to soot IR converter.
+   *
+   * @param sourcePath the set of paths to source code directories
+   * @param libPath the set of paths to library code, either .jar file or .class file. Java standard
+   *     libraries are added by default.
+   * @param exclusionFilePath the exclusion file path contains classes you want to exclude
+   */
   public WalaToSootIRConverter(
       @Nonnull Set<String> sourcePath, @Nonnull Set<String> libPath, String exclusionFilePath) {
     this(sourcePath, libPath, exclusionFilePath, new WalaOptions());
   }
 
+  /**
+   * Instantiates a new wala to soot IR converter.
+   *
+   * @param files the source code files.
+   * @param libPath the set of paths to library code, either .jar file or .class file. Java standard
+   *     libraries are added by default.
+   */
   public WalaToSootIRConverter(@Nonnull Collection<? extends Module> files, Set<String> libPath) {
     this(files, libPath, new WalaOptions());
   }
 
+  /**
+   * Instantiates a new wala to soot IR converter.
+   *
+   * @param files the source code files.
+   * @param libPath the set of paths to library code, either .jar file or .class file. Java standard
+   *     libraries are added by default.
+   * @param walaOptions the wala options
+   */
   public WalaToSootIRConverter(
       @Nonnull Collection<? extends Module> files, Set<String> libPath, WalaOptions walaOptions) {
     this.walaOptions = walaOptions;
@@ -96,7 +158,7 @@ public class WalaToSootIRConverter {
       scope.addToScope(JavaSourceAnalysisScope.SOURCE, file);
     }
     try {
-      scope.addToScope(buildLibPathScope(libPath, ClassLoaderReference.Primordial));
+      scope.addToScope(buildLibPathScope(libPath, ClassLoaderReference.Extension));
     } catch (IOException | InvalidClassFileException e) {
       e.printStackTrace();
     }
@@ -104,10 +166,19 @@ public class WalaToSootIRConverter {
     factory = new ECJClassLoaderFactory(scope.getExclusions());
   }
 
+  /**
+   * Builds the analysis scope for library code. It looks for .jar and .class files in the given
+   * libPath and add them to the scope.
+   *
+   * @param libPath the set of paths to library code.
+   * @param loader the loader
+   * @return the analysis scope
+   * @throws IOException Signals that an I/O exception has occurred.
+   * @throws InvalidClassFileException the invalid class file exception
+   */
   private AnalysisScope buildLibPathScope(
       final Collection<String> libPath, final ClassLoaderReference loader)
       throws IOException, InvalidClassFileException {
-
     final AnalysisScope analysisScope = AnalysisScope.createJavaAnalysisScope();
     for (final String pathString : libPath) {
       final Path path = Paths.get(pathString);
@@ -119,10 +190,18 @@ public class WalaToSootIRConverter {
     return analysisScope;
   }
 
+  /**
+   * Adds the file to the given scope.
+   *
+   * @param analysisScope the analysis scope
+   * @param loader the loader
+   * @param filePath the file path
+   * @throws IOException Signals that an I/O exception has occurred.
+   * @throws InvalidClassFileException the invalid class file exception
+   */
   private void addToScope(
       final AnalysisScope analysisScope, final ClassLoaderReference loader, final Path filePath)
       throws IOException, InvalidClassFileException {
-
     final File file = filePath.toFile();
     if (!file.isDirectory()) {
       final String fileName = file.getName();
@@ -176,6 +255,7 @@ public class WalaToSootIRConverter {
     }
   }
 
+  /** Adds the scopes for java stand library. */
   private void addScopesForJava() {
     createWalaproperties();
     // disable System.err messages generated from eclipse jdt

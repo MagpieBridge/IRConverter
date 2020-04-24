@@ -1,5 +1,10 @@
 package magpiebridge.converter;
 
+/**
+ * Selected WALA options
+ *
+ * @author Linghui Luo
+ */
 public class WalaOptions {
   private boolean allowPhantomClass = false;
   private boolean useCustomizedWalaProperties = false;
@@ -17,13 +22,15 @@ public class WalaOptions {
     return useCustomizedWalaProperties;
   }
 
-  public void setAllowPhantomClass(boolean allowPhantomClass) {
+  public WalaOptions setAllowPhantomClass(boolean allowPhantomClass) {
     this.allowPhantomClass = allowPhantomClass;
+    return this;
   }
 
-  public void setCustomizedWalaProperties(String pathOfWalaProperties) {
+  public WalaOptions setCustomizedWalaProperties(String pathOfWalaProperties) {
     this.useCustomizedWalaProperties = true;
     this.pathOfWalaProperties = pathOfWalaProperties;
+    return this;
   }
 
   /**

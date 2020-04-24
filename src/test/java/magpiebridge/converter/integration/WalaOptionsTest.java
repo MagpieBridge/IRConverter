@@ -13,6 +13,7 @@ import magpiebridge.converter.WalaToSootIRConverter;
 import org.junit.Test;
 import soot.Scene;
 
+/** @author Linghui Luo */
 public class WalaOptionsTest {
 
   @Test

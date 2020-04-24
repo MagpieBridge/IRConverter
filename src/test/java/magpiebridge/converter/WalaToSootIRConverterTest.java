@@ -12,6 +12,7 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
+/** @author João Pereira */
 public class WalaToSootIRConverterTest {
 
   /**
@@ -20,7 +21,7 @@ public class WalaToSootIRConverterTest {
    */
   @Test
   public void test_loadClassAndJar() {
-    final Path testPath = Paths.get("src/test/resources/libPathLoading");
+    final Path testPath = Paths.get("src/test/resources/integration/libPathLoading");
     final Path srcPath = testPath.resolve("src");
     final Path libPath = testPath.resolve("lib");
     final Set<String> srcSet = Collections.singleton(srcPath.toAbsolutePath().toString());
@@ -29,13 +30,14 @@ public class WalaToSootIRConverterTest {
 
     // Collect the names for the loaded class files
     Set<String> names = new HashSet<>();
-    for (Module m : irConverter.scope.getModules(ClassLoaderReference.Primordial)) {
+    for (Module m : irConverter.scope.getModules(ClassLoaderReference.Extension)) {
       Iterator<? extends ModuleEntry> entryIt = m.getEntries();
       while (entryIt.hasNext()) {
-        names.add(entryIt.next().getName());
+        ModuleEntry entry = entryIt.next();
+        if (entry.isClassFile()) names.add(entry.getName());
       }
     }
-
+    Assert.assertTrue(names.size() == 4);
     // src/test/resources/libPathLoading/lib contains the bytecode for classes B, C, D, E
     // either on a .class file or inside a .jar . Consequently, we expect that all of them
     // were successfully loaded into the analysis scope.
