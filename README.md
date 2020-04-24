@@ -1,7 +1,7 @@
-# IRConverter [![Build Status](https://travis-ci.com/MagpieBridge/IRConverter.svg?branch=master)](https://travis-ci.com/MagpieBridge/IRConverter)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
+# IRConverter [![Build Status](https://travis-ci.com/MagpieBridge/IRConverter.svg?branch=master)](https://travis-ci.com/MagpieBridge/IRConverter)
 This IRConverter converts [WALA](https://github.com/wala/WALA) intermediate representation (IR) to [Soot](https://github.com/Sable/soot) IR. This IRConverter enables you to analyze Java source code with Soot.  
 
 ## Why is this IRConverter needed? 
