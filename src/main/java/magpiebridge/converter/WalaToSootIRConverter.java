@@ -15,6 +15,7 @@ import com.ibm.wala.ipa.cha.ClassHierarchyException;
 import com.ibm.wala.ipa.cha.ClassHierarchyFactory;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.properties.WalaProperties;
+import com.ibm.wala.shrikeCT.InvalidClassFileException;
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.util.config.FileOfClasses;
 import com.ibm.wala.util.warnings.Warnings;
@@ -23,6 +24,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -65,11 +69,8 @@ public class WalaToSootIRConverter {
           JavaSourceAnalysisScope.SOURCE, new SourceDirectoryTreeModule(new File(path)));
     }
     try {
-      // add Jars to scope
-      for (String libJar : libPath) {
-        scope.addToScope(ClassLoaderReference.Primordial, new JarFile(libJar));
-      }
-    } catch (IOException e) {
+      scope.addToScope(buildLibPathScope(libPath, ClassLoaderReference.Primordial));
+    } catch (IOException | InvalidClassFileException e) {
       e.printStackTrace();
     }
     setExclusions(exclusionFilePath);
@@ -95,15 +96,43 @@ public class WalaToSootIRConverter {
       scope.addToScope(JavaSourceAnalysisScope.SOURCE, file);
     }
     try {
-      // add Jars to scope
-      for (String libJar : libPath) {
-        scope.addToScope(ClassLoaderReference.Primordial, new JarFile(libJar));
-      }
-    } catch (IOException e) {
+      scope.addToScope(buildLibPathScope(libPath, ClassLoaderReference.Primordial));
+    } catch (IOException | InvalidClassFileException e) {
       e.printStackTrace();
     }
     setExclusions(null);
     factory = new ECJClassLoaderFactory(scope.getExclusions());
+  }
+
+  private AnalysisScope buildLibPathScope(
+      final Collection<String> libPath, final ClassLoaderReference loader)
+      throws IOException, InvalidClassFileException {
+
+    final AnalysisScope analysisScope = AnalysisScope.createJavaAnalysisScope();
+    for (final String pathString : libPath) {
+      final Path path = Paths.get(pathString);
+      Iterator<Path> pathIt = Files.walk(path).iterator();
+      while (pathIt.hasNext()) {
+        addToScope(analysisScope, loader, pathIt.next());
+      }
+    }
+    return analysisScope;
+  }
+
+  private void addToScope(
+      final AnalysisScope analysisScope, final ClassLoaderReference loader, final Path filePath)
+      throws IOException, InvalidClassFileException {
+
+    final File file = filePath.toFile();
+    if (!file.isDirectory()) {
+      final String fileName = file.getName();
+      if (fileName.endsWith(".class")) {
+        analysisScope.addClassFileToScope(loader, file);
+      } else if (fileName.endsWith(".jar")) {
+        analysisScope.addToScope(loader, new JarFile(file));
+      }
+      // Notice that it ignores all other files
+    }
   }
 
   /**
