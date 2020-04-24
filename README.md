@@ -23,7 +23,7 @@ You can either
   <dependency>
     <groupId>magpiebridge</groupId>
     <artifactId>irconverter</artifactId>
-    <version>0.1.4</version>
+    <version>0.1.5</version>
   </dependency>
 </dependencies>
 
