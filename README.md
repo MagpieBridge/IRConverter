@@ -47,16 +47,7 @@ You can either
 - Pull requests are welcome!
 - Submit github issues for any feature enhancements, bugs or documentation problems
 - Please format the code with `mvn com.coveo:fmt-maven-plugin:format` before `git push`
-## Contact 
-&#x2709; linghui[at]outlook.de
-
-
-
-
-
-
  
-
 ## Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
@@ -77,3 +68,6 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+## Contact 
+&#x2709; linghui[at]outlook.de
