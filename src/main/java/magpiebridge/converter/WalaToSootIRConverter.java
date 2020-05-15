@@ -58,9 +58,6 @@ public class WalaToSootIRConverter {
   /** The class converter. */
   private ClassConverter classConverter;
 
-  /** The wala properties file. */
-  private File walaPropertiesFile;
-
   /** The wala options. */
   protected WalaOptions walaOptions;
 

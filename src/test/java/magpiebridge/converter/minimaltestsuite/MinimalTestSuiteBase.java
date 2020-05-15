@@ -39,7 +39,8 @@ public abstract class MinimalTestSuiteBase {
       this.classPath = description.getClassName();
       if (firstTime) {
         Set<String> sourcePathSet =
-            new HashSet(Arrays.asList(baseDir + "java6", baseDir + "java7", baseDir + "java8"));
+            new HashSet<String>(
+                Arrays.asList(baseDir + "java6", baseDir + "java7", baseDir + "java8"));
         WalaToSootIRConverter converter = new WalaToSootIRConverter(sourcePathSet);
         converter.convert();
         firstTime = false;

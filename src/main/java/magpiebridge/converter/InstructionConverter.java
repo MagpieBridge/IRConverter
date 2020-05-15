@@ -894,7 +894,7 @@ public class InstructionConverter {
       Type type,
       int iindex,
       AstMethod.DebuggingInformation debugInfo) {
-    List<Stmt> ret = new ArrayList();
+    List<Stmt> ret = new ArrayList<>();
     CAstSourcePositionMap.Position p1 = debugInfo.getOperandPosition(iindex, 0);
     CAstSourcePositionMap.Position p2 = debugInfo.getOperandPosition(iindex, 1);
     CAstSourcePositionMap.Position stmtPosition = debugInfo.getInstructionPosition(iindex);
@@ -954,7 +954,7 @@ public class InstructionConverter {
 
   private List<Stmt> convertBinaryOpInstruction(
       DebuggingInformation debugInfo, SSABinaryOpInstruction binOpInst) {
-    List<Stmt> stmts = new ArrayList();
+    List<Stmt> stmts = new ArrayList<>();
     int def = binOpInst.getDef();
     int val1 = binOpInst.getUse(0);
     int val2 = binOpInst.getUse(1);

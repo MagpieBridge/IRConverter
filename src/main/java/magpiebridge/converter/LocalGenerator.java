@@ -108,7 +108,6 @@ public class LocalGenerator {
   }
 
   private Local generate(@Nonnull Type type, boolean isField) {
-
     StringBuilder name = new StringBuilder(7);
     name.append("$");
     String localName;
@@ -146,9 +145,17 @@ public class LocalGenerator {
       }
 
       localName = name.toString();
-    } while (locals.contains(localName));
+    } while (containsLocal(localName));
 
     return createLocal(localName, type);
+  }
+
+  private boolean containsLocal(String name) {
+    for (Local l : locals)
+      if (l.toString().equals(name)) {
+        return true;
+      }
+    return false;
   }
 
   private int tempInt = 0;
