@@ -21,7 +21,6 @@ import com.ibm.wala.util.config.FileOfClasses;
 import com.ibm.wala.util.warnings.Warnings;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -274,13 +273,16 @@ public class WalaToSootIRConverter {
   private void createWalaproperties() {
     File walaPropertiesFile = new File(walaOptions.getPathOfWalaProperties());
     if (!walaPropertiesFile.exists()) {
-      PrintWriter pw;
       try {
+        PrintWriter pw;
+        walaPropertiesFile.createNewFile();
+        System.err.println(walaPropertiesFile.getAbsolutePath());
         pw = new PrintWriter(walaPropertiesFile);
         String jdkPath = System.getProperty("java.home");
         pw.println("java_runtime_dir = " + new File(jdkPath).toString().replace("\\", "/"));
         pw.close();
-      } catch (FileNotFoundException e) {
+      } catch (IOException e) {
+        e.printStackTrace();
         throw new RuntimeException(e);
       }
     }

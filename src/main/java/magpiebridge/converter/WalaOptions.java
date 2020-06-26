@@ -1,5 +1,7 @@
 package magpiebridge.converter;
 
+import java.io.File;
+
 /**
  * Selected WALA options
  *
@@ -11,7 +13,8 @@ public class WalaOptions {
   private String pathOfWalaProperties;
 
   public WalaOptions() {
-    this.pathOfWalaProperties = "wala.properties";
+    this.pathOfWalaProperties =
+        System.getProperty("java.io.tmpdir") + File.separator + "wala.properties";
   }
 
   public boolean allowPhantomClass() {
