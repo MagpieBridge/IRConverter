@@ -16,7 +16,7 @@ The following figure shows the IR statements considered by this IRConverter.
 This IRConverter was developed for our paper: [MagpieBridge: A General Approach to Integrating Static Analyses into IDEs and Editors](https://drops.dagstuhl.de/opus/volltexte/2019/10813/pdf/LIPIcs-ECOOP-2019-21.pdf) (ECOOP 2019). The parent project MagpieBridge can be found [here](https://github.com/MagpieBridge/MagpieBridge). 
 
 ## Limitations
-Since this IRConverter uses WALA Java source code frond end, the limitation of WALA is inherited. See discussions [here](https://github.com/MagpieBridge/IRConverter/issues/1). 
+Since this IRConverter uses WALA Java source code frond end, the limitations of WALA are inherited. See discussions [here](https://github.com/MagpieBridge/IRConverter/issues/1). 
 
 ## Cite the research paper
 For scientific usage, please **cite the paper** [[BibTex](https://drops.dagstuhl.de/opus/volltexte/2019/10813/)].
