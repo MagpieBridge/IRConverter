@@ -22,8 +22,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<soot.version>3.3.0</soot.version>
-		<wala.version>1.5.4</wala.version>
+		<soot.version>4.1.0</soot.version>
+		<wala.version>1.5.6</wala.version>
 	</properties>
 
 	<dependencies>
